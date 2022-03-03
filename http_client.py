@@ -1,6 +1,7 @@
+import json
+import logging
 from requests import Session
 from requests.exceptions import ConnectionError, Timeout, TooManyRedirects
-import json
 
 class HttpClient:
     _url= str
@@ -12,17 +13,17 @@ class HttpClient:
         pass
     
     def _session_create(self):
-        print("create coinmarketcap sesion")
+        logging.info("initializing session")
         self._session = Session()
         
     def _sesion(self):
         if  self._session is None:
             self._session_create()
         self._session.headers.update(self._headers)
-        print("successfully logged in!")
+        logging.info("successfully session created!")
         
     def get(self, url, params=None, headers=None):
-        print(f"Fetching (GET) {url}")
+        logging.info(f"Fetch (GET) {url}")
         if params is None:
             params = self._params
         if headers is None:
@@ -30,6 +31,8 @@ class HttpClient:
         try:
             self._sesion()
             response = self._session.get(url, params=params)
+            logging.info(f"Fetch (GET) {url}")
             return json.loads(response.text)
         except (ConnectionError, Timeout, TooManyRedirects) as e:
+          logging.error(f"Fetch (GET) {url}")
           print(e)

@@ -1,11 +1,9 @@
+import logging
+import json
 from http_client import HttpClient
 from constants import COINMARKETCAP_URL
 from constants import COINMARKETCAP_APIKEY
-PARAMETERS = {
-    'start':'1',
-    'limit':'5000',
-    'convert':'USD'
-}
+from constants import PARAMETERS
 
 def request_validator(func):
     _available_endpoint_categories = [
@@ -51,13 +49,18 @@ def request_validator(func):
             return func(args[0], args[1])
     return wrapper            
 
+def output(data):
+    jsonString = json.dumps(data)
+    jsonFile = open("data.json", "w")
+    jsonFile.write(jsonString)
+    jsonFile.close()
     
 class CoinMarketCap:
     _session = None
     _headers = None
     def __init__(self):
-        print("CoinMarketCap init...")
-        print(f"Api key for Coin market cap: {COINMARKETCAP_APIKEY}")
+        logging.info('CoinMarketCap::class init')
+        logging.info(f"Apikey for Coin market cap: {COINMARKETCAP_APIKEY}")
         self._headers = {
             'Accepts': 'application/json',
             'X-CMC_PRO_API_KEY': COINMARKETCAP_APIKEY,
@@ -65,6 +68,7 @@ class CoinMarketCap:
         pass
     @request_validator
     def fetch(self, path, parameters=PARAMETERS) -> object:
+        logging.info(f'CoinMarketCap::fetch fetch {COINMARKETCAP_URL}/{path}')
         httpClient = HttpClient(headers=self._headers)
         response = httpClient.get(f"{COINMARKETCAP_URL}/{path}", params=parameters)
         # response = {
@@ -78,4 +82,5 @@ class CoinMarketCap:
         #     }
         # } 
         print(f"return {len(response.get('data'))} active cryptocurrencies")
+        output(response.get("data"))
         return response.get("data")
