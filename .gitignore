@@ -7,3 +7,6 @@ venv
 # dotenv
 .env
 app.log
+# data mocks
+data.json
+dummy.json
